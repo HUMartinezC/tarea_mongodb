@@ -195,3 +195,76 @@ print("\nJoyas en Apple TV+ (puntuación >= 9.0):")
 for serie in joyas_apple:
     print(f"- {serie['titulo']} (Puntuación: {serie.get('puntuacion', 'N/A')})")
 to_json(joyas_apple, filename="joyas_apple.json")
+
+# ------------------------------
+# Puntiación media de todas las series
+# ------------------------------
+query = [
+    {"$match": {"puntuacion": {"$exists": True}}},
+    {"$group": {"_id": None, "puntuacion_media": {"$avg": "$puntuacion"}}},
+]
+
+resultado = list(mongo.collection.aggregate(query))
+if resultado:
+    puntuacion_media = round(resultado[0]["puntuacion_media"], 2)
+    print(f"\nPuntuación media de todas las series: {puntuacion_media}")
+
+# ------------------------------
+# Colección unificada
+# ------------------------------
+
+# Obtener primero la colección de series
+series = list(mongo.collection.find({}))
+
+# Cambiar a la nueva colección
+mongo.collection = mongo.db["detalles_produccion"]
+
+# Eliminar la colección si ya existe
+mongo.collection.drop()
+print(f"Colección '{mongo.collection.name}' eliminada ✅")
+
+# Crear documentos unificados
+detalles = []
+
+PAISES = ["EE.UU.", "Corea del Sur", "España", "Reino Unido"]
+
+for serie in series:
+    detalle = {
+        "titulo": serie["titulo"],
+        "pais_origen": random.choice(PAISES),
+        "reparto_principal": [fake.name() for _ in range(3)],
+        "presupuesto_por_episodio": round(random.uniform(0.5, 10.0), 2)  # en millones
+    }
+    detalles.append(detalle)
+
+# Insertar en la nueva colección
+mongo.collection.insert_many(detalles)
+print(f"{len(detalles)} documentos insertados en 'detalles_produccion' ✅")
+
+query = [
+    {"finalizada": True},
+    {"puntuacion": {"$exists": True}},
+    {"puntuacion": {"$gt": 8}},
+    {"pais_origen": "EE.UU."},
+]
+
+series_exitosas = list(mongo.collection.aggregate([
+    {"$lookup": {
+        "from": "series",
+        "localField": "titulo",
+        "foreignField": "titulo",
+        "as": "serie_info"
+    }},
+    {"$unwind": "$serie_info"},
+    {"$match": {
+        "serie_info.finalizada": True,
+        "serie_info.puntuacion": {"$gt": 8},
+        "pais_origen": "EE.UU."
+    }}
+]))
+
+print("\nSeries exitosas finalizadas de EE.UU. con puntuación > 8:")
+for serie in series_exitosas:
+    print(f"- {serie['titulo']} (Puntuación: {serie['serie_info']['puntuacion']})")
+    
+to_json(series_exitosas, filename="series_exitosas_eeuu.json")
