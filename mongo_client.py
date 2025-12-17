@@ -221,7 +221,7 @@ mongo.collection = mongo.db["detalles_produccion"]
 
 # Eliminar la colección si ya existe
 mongo.collection.drop()
-print(f"Colección '{mongo.collection.name}' eliminada ✅")
+print(f"\nColección '{mongo.collection.name}' eliminada ✅")
 
 # Crear documentos unificados
 detalles = []
@@ -241,13 +241,6 @@ for serie in series:
 mongo.collection.insert_many(detalles)
 print(f"{len(detalles)} documentos insertados en 'detalles_produccion' ✅")
 
-query = [
-    {"finalizada": True},
-    {"puntuacion": {"$exists": True}},
-    {"puntuacion": {"$gt": 8}},
-    {"pais_origen": "EE.UU."},
-]
-
 series_exitosas = list(mongo.collection.aggregate([
     {"$lookup": {
         "from": "series",
@@ -258,7 +251,7 @@ series_exitosas = list(mongo.collection.aggregate([
     {"$unwind": "$serie_info"},
     {"$match": {
         "serie_info.finalizada": True,
-        "serie_info.puntuacion": {"$gt": 8},
+        "serie_info.puntuacion": {"$exists": True, "$gt": 8},
         "pais_origen": "EE.UU."
     }}
 ]))
