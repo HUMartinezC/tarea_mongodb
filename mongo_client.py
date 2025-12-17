@@ -261,3 +261,47 @@ for serie in series_exitosas:
     print(f"- {serie['titulo']} (Puntuación: {serie['serie_info']['puntuacion']})")
     
 to_json(series_exitosas, filename="series_exitosas_eeuu.json")
+
+#------------------------------
+# Calcular gasto financiero de ambas colecciones
+#------------------------------
+
+gasto_financiero = [
+    {
+        "$lookup": {
+            "from": "detalles_produccion",
+            "localField": "titulo",
+            "foreignField": "titulo",
+            "as": "detalles"
+        }
+    },
+    {"$unwind": "$detalles"},
+        {
+        "$project": {
+            "_id": 0,
+            "titulo": 1,
+            "coste_total": {
+                "$multiply": [
+                    "$temporadas",
+                    8,
+                    "$detalles.presupuesto_por_episodio"
+                ]
+            }
+        }
+    }
+]
+
+
+print("\nGasto financiero estimado por serie:")
+gastos = list(mongo.db["series"].aggregate(gasto_financiero))
+for gasto in gastos:
+    print(f"- {gasto['titulo']}: ${gasto['coste_total']:.2f} millones")
+    
+# Limpiar _id (aunque normalmente no aparece si haces $project con "_id": 0)
+gastos_sin_id = [{k: v for k, v in doc.items() if k != "_id"} for doc in gastos]
+
+# Guardar en archivo JSON
+with open("gasto_financiero_series.json", "w", encoding="utf-8") as f:
+    json.dump(gastos_sin_id, f, indent=2, ensure_ascii=False)
+
+print(f"{len(gastos_sin_id)} registros guardados en 'gasto_financiero_series.json' ✅")
