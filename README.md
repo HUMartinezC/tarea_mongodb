@@ -1,6 +1,6 @@
 # Tarea MongoDB
 
-Este proyecto est\u00e1 desarrollado en Python y tiene como objetivo conectarse a una base de datos MongoDB para realizar diversas operaciones.
+Este proyecto está desarrollado en Python y tiene como objetivo conectarse a una base de datos MongoDB para realizar diversas operaciones.
 
 ## Requerimientos
 
