@@ -5,7 +5,7 @@ Este proyecto est\u00e1 desarrollado en Python y tiene como objetivo conectarse 
 ## Requerimientos
 
 - Python instalado
-- MongoDB corriendo en tu entorno
+- MongoDB configurado
 
 ## Instalaci\u00f3n
 
@@ -24,7 +24,7 @@ Este proyecto est\u00e1 desarrollado en Python y tiene como objetivo conectarse 
    pip install -r requirements.txt
    ```
 
-## Ejecuci\u00f3n
+## Ejecución
 
 Para ejecutar el proyecto, usa el siguiente comando:
 ```bash
