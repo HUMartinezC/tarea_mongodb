@@ -7,7 +7,7 @@ Este proyecto est\u00e1 desarrollado en Python y tiene como objetivo conectarse 
 - Python instalado
 - MongoDB configurado
 
-## Instalaci\u00f3n
+## Instalación
 
 1. Clona este repositorio:
    ```bash
